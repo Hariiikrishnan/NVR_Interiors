@@ -4,12 +4,7 @@
   "version": "1.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
-    "build": "node build.cjs",
-    "preview": "vite preview"
-  },
-  "devDependencies": {
-    "vite": "^6.0.0"
+    "build": "node build.cjs"
   },
   "dependencies": {
     "cheerio": "^1.2.0"
