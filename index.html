@@ -12,11 +12,25 @@
             
             if (typeof url === 'string' && url.includes('script.google.com/macros')) {
                 // Send the actual request to Google Apps script in no-cors mode, sending JSON string as plain text to bypass preflight
+                let parsed = options.body;
+                if (typeof options.body === 'string') {
+                    try {
+                        let originalParsed = JSON.parse(options.body);
+                        let normalized = {};
+                        for (let key in originalParsed) {
+                            let nk = key.toLowerCase().replace(/\s+/g, '');
+                            if (nk === 'phonenumber') nk = 'phone';
+                            normalized[nk] = originalParsed[key];
+                        }
+                        parsed = JSON.stringify(normalized);
+                    } catch(e) {}
+                }
+
                 originalFetch(url, {
                     method: 'POST',
                     mode: 'no-cors',
                     headers: { 'Content-Type': 'text/plain' },
-                    body: options.body
+                    body: parsed
                 });
 
                 // Immediately return a mocked 200 OK response to Framer so the UI transitions to "Success"
