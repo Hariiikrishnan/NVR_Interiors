@@ -13,9 +13,17 @@
             if (typeof url === 'string' && url.includes('script.google.com/macros')) {
                 // Send the actual request to Google Apps script in no-cors mode, sending JSON string as plain text to bypass preflight
                 let parsed = options.body;
-                if (typeof options.body === 'string') {
-                    try {
-                        let originalParsed = JSON.parse(options.body);
+                try {
+                    let originalParsed;
+                    if (typeof options.body === 'string') {
+                        originalParsed = JSON.parse(options.body);
+                    } else if (options.body instanceof FormData) {
+                        originalParsed = Object.fromEntries(options.body.entries());
+                    } else {
+                        originalParsed = options.body;
+                    }
+                    
+                    if (originalParsed && typeof originalParsed === 'object') {
                         let normalized = {};
                         for (let key in originalParsed) {
                             let nk = key.toLowerCase().replace(/\s+/g, '');
@@ -23,8 +31,8 @@
                             normalized[nk] = originalParsed[key];
                         }
                         parsed = JSON.stringify(normalized);
-                    } catch(e) {}
-                }
+                    }
+                } catch(e) {}
 
                 originalFetch(url, {
                     method: 'POST',
