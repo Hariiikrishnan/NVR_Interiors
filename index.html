@@ -11,22 +11,12 @@
             let options = arguments[1] || {};
             
             if (typeof url === 'string' && url.includes('script.google.com/macros')) {
-                // Framer sends JSON. We convert it to FormData to bypass the OPTIONS preflight requirement in GAS
-                let formData = new FormData();
-                if (typeof options.body === 'string') {
-                    try {
-                        let parsed = JSON.parse(options.body);
-                        for (let key in parsed) {
-                            formData.append(key, typeof parsed[key] === 'object' ? JSON.stringify(parsed[key]) : parsed[key]);
-                        }
-                    } catch(e) {}
-                }
-
-                // Send the actual request to Google Apps script in no-cors mode
+                // Send the actual request to Google Apps script in no-cors mode, sending JSON string as plain text to bypass preflight
                 originalFetch(url, {
                     method: 'POST',
                     mode: 'no-cors',
-                    body: formData
+                    headers: { 'Content-Type': 'text/plain' },
+                    body: options.body
                 });
 
                 // Immediately return a mocked 200 OK response to Framer so the UI transitions to "Success"
